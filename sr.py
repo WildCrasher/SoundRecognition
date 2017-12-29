@@ -10,20 +10,23 @@ print("czestotliwosc probkowania: {}".format(w))
 n = len(signal)
 print( "dlugosc sygnalu: {}".format(n) )
 
+sound_time = n/w
+t = linspace(0, sound_time, n, endpoint=False)
+#t = arange(0, sound_time, 1/w)
 
 subplot(211)
-t = linspace(0, n, n, endpoint=False)
 plot(t, signal, '*')
+xlabel("Probki")
+ylabel("Signal[t]")
 
-signal1 = fft(signal)
+signal1 = fft(signal)*2/n
 signal1 = abs(signal1)
+freqs = linspace(0, w, n, endpoint=False)
 
 subplot(212)
-freqs = linspace(0, w, n, endpoint=False)
-print("przed")
-stem(freqs, signal1, '-*')
-print("po")
+plot(freqs, signal1, '-*')
+#stem(freqs, signal1, '-*')
 xlabel("w [Hz]")
 ylabel('fft(signal)')
-print("show")
-plot.show()
+
+show()
