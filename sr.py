@@ -5,6 +5,8 @@ import numpy as np
 from scipy import *
 import scipy.io.wavfile
 
+#functions
+
 def index_of_max( tab ):
 	index = 0
 	maks = tab[0]
@@ -16,42 +18,56 @@ def index_of_max( tab ):
 	return index
 		
 	
+def find_first_min( rxx, first_pick_lock ):
+	i = first_pick_lock + 1
+	j = first_pick_lock - 1
+	while (rxx[i - 1] > rxx[i]) and (rxx[j + 1] > rxx[j]):
+		i += 1
+		j -= 1
+	return i - 1
+
+#main
 
 np.set_printoptions(threshold=np.nan)
-w, signal = scipy.io.wavfile.read('003_K.wav')
+w, signal = scipy.io.wavfile.read('006_K.wav')
 n = len(signal)
-
+T = 1/w
 sound_time = n/w
+
 t = linspace(0, sound_time, n, endpoint=False)
 
 signal1 = fft(signal)*2/n
 signal1 = abs(signal1)
 
-rxx = np.correlate(signal/10000, signal/10000,"valid")
-#lags = linspace(-len(signal) + 1, len(signal) - 1, len(signal)*2 - 1 )
-rxx = np.correlate(signal/10000, signal/10000, "full")
+rxx = np.correlate(signal/1000, signal/10000, "full")
 
-first_pick_lock = len(signal) + 1
+first_pick_lock = len(signal) - 1
 
-print(len(rxx))
-print(first_pick_lock)
-print(index_of_max(rxx))
-
-half_min = 15
+right_min_index = find_first_min(rxx, first_pick_lock) 
+left_min_index = first_pick_lock - ( right_min_index - first_pick_lock )
 
 seq = rxx
-i = first_pick_lock - half_min
-j = first_pick_lock + half_min
-seq[i : j] = min(seq)
+i = right_min_index
+j = left_min_index
 
-max_value = max(seq)
+seq[j : i] = min(seq)
+
+#max_value = max(seq)
 second_pick_lock = index_of_max(seq)
 
-period = abs(second_pick_lock - first_pick_lock)
+period_in_samples = abs(second_pick_lock - first_pick_lock)
+print(period_in_samples)
+print(T)
 
-print(first_pick_lock)
-print(rxx[first_pick_lock])
-print(index_of_max(rxx))
-print(max(rxx))
+period = period_in_samples * T
+fundamental_frequency = 1/period
+print(fundamental_frequency)
 
+#male 85 - 180, female 165 - 255
 
+if(fundamental_frequency <= 165):
+	print("M")
+elif(fundamental_frequency >= 180):
+	print("K")
+else:
+	print("Not sure")
