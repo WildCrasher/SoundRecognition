@@ -1,11 +1,21 @@
 from __future__ import division
 from matplotlib import pylab
 from pylab import *
-import numpy as np
 from scipy import *
+import numpy as np
 import scipy.io.wavfile
+import subprocess
+import sys
 
 #functions
+
+def load_all_wavfiles():
+	ls = subprocess.Popen(("ls","train"), stdout = subprocess.PIPE)
+	list_of_files = subprocess.check_output(("tr",' ', '\n'), stdin = ls.stdout)
+	ls.wait()
+	list_of_files = list_of_files.decode()
+	list_of_files = list_of_files.split('\n')
+	list_of_files = list_of_files[:-1]
 
 def index_of_max( tab ):
 	index = 0
@@ -28,18 +38,14 @@ def find_first_min( rxx, first_pick_lock ):
 
 #main
 
-np.set_printoptions(threshold=np.nan)
-w, signal = scipy.io.wavfile.read('006_K.wav')
-n = len(signal)
+#np.set_printoptions(threshold=np.nan)
+load_all_wavfiles()
+w, signal = scipy.io.wavfile.read(sys.argv[1])
+n = len(signal[0])
 T = 1/w
 sound_time = n/w
-
-t = linspace(0, sound_time, n, endpoint=False)
-
-signal1 = fft(signal)*2/n
-signal1 = abs(signal1)
-
-rxx = np.correlate(signal/1000, signal/10000, "full")
+print(signal)
+rxx = np.correlate(signal/10000, signal/10000, "full")
 
 first_pick_lock = len(signal) - 1
 
@@ -52,12 +58,9 @@ j = left_min_index
 
 seq[j : i] = min(seq)
 
-#max_value = max(seq)
 second_pick_lock = index_of_max(seq)
 
 period_in_samples = abs(second_pick_lock - first_pick_lock)
-print(period_in_samples)
-print(T)
 
 period = period_in_samples * T
 fundamental_frequency = 1/period
