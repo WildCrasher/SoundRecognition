@@ -41,10 +41,17 @@ def find_first_min( rxx, first_pick_lock ):
 #np.set_printoptions(threshold=np.nan)
 load_all_wavfiles()
 w, signal = scipy.io.wavfile.read(sys.argv[1])
-n = len(signal[0])
+
+if ( len(np.shape(signal)) > 1 ) :
+	print("zmieniam")
+	signal = [ s[0] for s in signal]
+	signal = np.asarray(signal)
+
+#signal = signal[::10]
+n = len(signal)
 T = 1/w
 sound_time = n/w
-print(signal)
+
 rxx = np.correlate(signal/10000, signal/10000, "full")
 
 first_pick_lock = len(signal) - 1
