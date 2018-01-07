@@ -2,6 +2,7 @@ from __future__ import division
 from matplotlib import pylab
 from pylab import *
 from scipy import *
+from scipy import signal
 import numpy as np
 import scipy.io.wavfile
 import subprocess
@@ -27,51 +28,40 @@ def index_of_max( tab ):
 			index = i
 	return index
 		
-	
-def find_first_min( rxx, first_pick_lock ):
-	i = first_pick_lock + 1
-	j = first_pick_lock - 1
-	while (rxx[i - 1] > rxx[i]) and (rxx[j + 1] > rxx[j]):
-		i += 1
-		j -= 1
-	return i - 1
 
 #main
 
-#np.set_printoptions(threshold=np.nan)
-load_all_wavfiles()
-w, signal = scipy.io.wavfile.read(sys.argv[1])
+w, voice = scipy.io.wavfile.read(sys.argv[1])
 
-if ( len(np.shape(signal)) > 1 ) :
-	print("zmieniam")
-	signal = [ s[0] for s in signal]
-	signal = np.asarray(signal)
+if ( len(np.shape(voice)) > 1 ) :
+	voice = [ s[0] for s in voice]
+	voice = np.asarray(voice)
 
-#signal = signal[::10]
-n = len(signal)
-T = 1/w
-sound_time = n/w
+n = len(voice)
+threshold = 380
 
-rxx = np.correlate(signal/10000, signal/10000, "full")
+rxx = signal.fftconvolve(voice,voice[::-1],mode = "full")
+rxx = rxx[(len(rxx)//2)-1:]
 
-first_pick_lock = len(signal) - 1
+extrema_max_indexes = signal.argrelextrema(rxx,np.greater)
+extrema_max_indexes = extrema_max_indexes[0]
 
-right_min_index = find_first_min(rxx, first_pick_lock) 
-left_min_index = first_pick_lock - ( right_min_index - first_pick_lock )
+valid = []
+for i in extrema_max_indexes:
+	if w/i < threshold:
+		valid.append(i)
 
-seq = rxx
-i = right_min_index
-j = left_min_index
+pick_lock = valid[0]
+temp_value_of_pick_lock = rxx[pick_lock]
+fundamental_frequency = 0
 
-seq[j : i] = min(seq)
-
-second_pick_lock = index_of_max(seq)
-
-period_in_samples = abs(second_pick_lock - first_pick_lock)
-
-period = period_in_samples * T
-fundamental_frequency = 1/period
-print(fundamental_frequency)
+pick_lock = index_of_max(rxx[valid])
+fundamental_frequency = w/valid[pick_lock]
+#for i in valid:	
+#	if (rxx[i] > temp_value_of_pick_lock):
+#		pick_lock = i
+#		temp_value_of_first_pick_lock = rxx[i]
+#		fundamental_frequency = w/i
 
 #male 85 - 180, female 165 - 255
 
