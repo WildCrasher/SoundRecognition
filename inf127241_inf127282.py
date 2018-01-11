@@ -10,14 +10,6 @@ import sys
 
 #functions
 
-def load_all_wavfiles():
-	ls = subprocess.Popen(("ls","train"), stdout = subprocess.PIPE)
-	list_of_files = subprocess.check_output(("tr",' ', '\n'), stdin = ls.stdout)
-	ls.wait()
-	list_of_files = list_of_files.decode()
-	list_of_files = list_of_files.split('\n')
-	list_of_files = list_of_files[:-1]
-
 def index_of_max( tab ):
 	index = 0
 	maks = tab[0]
@@ -57,17 +49,12 @@ fundamental_frequency = 0
 
 pick_lock = index_of_max(rxx[valid])
 fundamental_frequency = w/valid[pick_lock]
-#for i in valid:	
-#	if (rxx[i] > temp_value_of_pick_lock):
-#		pick_lock = i
-#		temp_value_of_first_pick_lock = rxx[i]
-#		fundamental_frequency = w/i
 
 #male 85 - 180, female 165 - 255
 
-if(fundamental_frequency <= 165):
+if(fundamental_frequency <= 175):
 	print("M")
-elif(fundamental_frequency >= 180):
-	print("K")
+#elif(fundamental_frequency >= 180):
+#	print("K")
 else:
-	print("Not sure")
+	print("K")
