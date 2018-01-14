@@ -52,9 +52,7 @@ fundamental_frequency = w/valid[pick_lock]
 
 #male 85 - 180, female 165 - 255
 
-if(fundamental_frequency <= 175):
+if(fundamental_frequency <= 180):
 	print("M")
-#elif(fundamental_frequency >= 180):
-#	print("K")
 else:
 	print("K")

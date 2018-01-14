@@ -13,6 +13,10 @@ do
 
 	gender=`python3 ./inf127241_inf127282.py $file`
 	
+	echo $file
+	echo $gender
+	echo $gender_in_file
+	
 	if [[ $gender_in_file == $gender ]]; then
 		((correct++))
 	fi
